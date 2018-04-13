@@ -1,24 +1,18 @@
 package com.example.xyzreader.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -33,6 +27,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -140,6 +139,20 @@ public class ArticleDetailFragment extends Fragment implements
 
         mStatusBarColorDrawable = new ColorDrawable(0);
 
+        // Fix extra space around CardView in SDK < 21.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && !mIsCard) {
+            CardView cardView = (CardView) mRootView.findViewById(R.id.detail_card_view);
+            CardView.MarginLayoutParams marginLayoutParams = (CardView.MarginLayoutParams) cardView.getLayoutParams();
+            int lessMargin =  Math.round(2.5f * getResources().getDisplayMetrics().density);
+            marginLayoutParams.topMargin = marginLayoutParams.topMargin - lessMargin;
+            marginLayoutParams.bottomMargin = marginLayoutParams.bottomMargin - lessMargin;
+            marginLayoutParams.leftMargin = marginLayoutParams.leftMargin - lessMargin;
+            marginLayoutParams.rightMargin = marginLayoutParams.rightMargin - lessMargin;
+            cardView.setLayoutParams(marginLayoutParams);
+            cardView.requestLayout();
+        }
+
+/*
         mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -149,6 +162,7 @@ public class ArticleDetailFragment extends Fragment implements
                         .getIntent(), getString(R.string.action_share)));
             }
         });
+*/
 
         bindViews();
         updateStatusBar();
@@ -195,6 +209,7 @@ public class ArticleDetailFragment extends Fragment implements
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void bindViews() {
         if (mRootView == null) {
             return;
@@ -206,7 +221,7 @@ public class ArticleDetailFragment extends Fragment implements
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
 
 
-        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
+//        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
@@ -232,7 +247,15 @@ public class ArticleDetailFragment extends Fragment implements
                                 + "</font>"));
 
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
+
+            // Adjustments based on mentor tips in the course discussion forum...
+            // https://discussions.udacity.com/t/sanitizing-article-text/610545/5
+            // https://discussions.udacity.com/t/p5-activity-transitions-are-extremely-slow/241729/12
+            bodyView.setText(mCursor.getString(ArticleLoader.Query.BODY)
+                    .substring(0,2000)
+                    .replaceAll("(\r\n\r\n)", "\n\n")
+                    .replaceAll("(\r\n)", " ") + " . . .");
+
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
@@ -296,9 +319,11 @@ public class ArticleDetailFragment extends Fragment implements
             return Integer.MAX_VALUE;
         }
 
+        int detailCardTopMargin = getResources().getDimensionPixelSize(R.dimen.detail_card_top_margin);
+
         // account for parallax
         return mIsCard
-                ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
-                : mPhotoView.getHeight() - mScrollY;
+                ? (int) mPhotoContainerView.getTranslationY() + detailCardTopMargin - mScrollY
+                : detailCardTopMargin - mScrollY;
     }
 }
