@@ -1,5 +1,7 @@
 package com.example.xyzreader.ui;
 
+// Source: https://github.com/ianhanniballake/cheesesquare/blob/92bcf7c8b57459051424cd512a032c12d24a41b3/app/src/main/java/com/support/android/designlibdemo/ScrollAwareFABBehavior.java
+
 /*
  * Copyright 2015 The Android Open Source Project
  *
