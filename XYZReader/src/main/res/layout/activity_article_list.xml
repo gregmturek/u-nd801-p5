@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay"
-        android:elevation="4dp">
+        android:elevation="@dimen/app_bar_elevation">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -44,7 +44,7 @@
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:elevation="3dp">
+            app:elevation="@dimen/swipe_refresh_layout_elevation">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view"
