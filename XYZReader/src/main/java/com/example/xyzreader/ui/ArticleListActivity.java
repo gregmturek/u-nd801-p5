@@ -68,8 +68,6 @@ public class ArticleListActivity extends AppCompatActivity implements
             findViewById(R.id.toolbar_shadow).setVisibility(View.VISIBLE);
         }
 
-//        final View toolbarContainerView = findViewById(R.id.toolbar_container);
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
